@@ -6,8 +6,9 @@ import java.sql.SQLException;
 
 import com.google.code.geocoder.Geocoder;
 import com.google.code.geocoder.model.GeocodeResponse;
+import com.google.code.geocoder.model.GeocoderGeometry;
 import com.google.code.geocoder.model.GeocoderRequest;
-import com.google.code.geocoder.model.GeocoderStatus;
+import com.google.code.geocoder.model.GeocoderResult;
 
 public class NtiSimpleIntegrator {
 
@@ -28,7 +29,21 @@ public class NtiSimpleIntegrator {
 			GeocoderRequest geocoderRequest = new GeocoderRequest("Озеро Байкал", "ru");
 			GeocodeResponse geocodeResponse = geocoder.geocode(geocoderRequest);
 			
-			System.out.println(geocodeResponse);
+			
+			
+			for (GeocoderResult result : geocodeResponse.getResults()){
+				System.out.println(result);
+				
+				GeocoderGeometry geometry = result.getGeometry();
+				System.out.println(geometry);
+				
+				double longitude = geometry.getLocation().getLng().doubleValue();
+				double latitude = geometry.getLocation().getLat().doubleValue();
+				
+				System.out.println(longitude);
+				System.out.println(latitude);
+				
+			}
 			
 			
 			
