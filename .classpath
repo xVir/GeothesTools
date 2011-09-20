@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="lib/postgresql-9.0-801.jdbc4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.6/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.0.1/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/postgresql-9.0-801.jdbc4.jar" sourcepath="C:/Users/danil/.m2/repository/postgresql/postgresql/9.0-801.jdbc4/postgresql-9.0-801.jdbc4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6/commons-lang-2.6.jar" sourcepath="C:/Users/danil/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.0.1/commons-io-2.0.1.jar" sourcepath="C:/Users/danil/.m2/repository/commons-io/commons-io/2.0.1/commons-io-2.0.1-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geocoder-java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>

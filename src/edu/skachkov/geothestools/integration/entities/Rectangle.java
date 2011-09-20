@@ -1,5 +1,7 @@
 package edu.skachkov.geothestools.integration.entities;
 
+import edu.skachkov.geothestools.integration.constants.GeoobjectTypes;
+
 public class Rectangle extends IntegrationEntity {
 	
 	private static final String RECTANGLE_FORMAT = "%s,%s";
@@ -29,6 +31,10 @@ public class Rectangle extends IntegrationEntity {
 
 	private String geoFromText(Point p) {
 		return String.format(GEO_FROM_TEXT_FORMAT, p.toString());
+	}
+
+	public int getType(){
+		return GeoobjectTypes.RECTANGLE_TYPE;
 	}
 	
 }

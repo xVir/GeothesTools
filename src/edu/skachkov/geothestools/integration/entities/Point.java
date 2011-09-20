@@ -4,6 +4,8 @@ import com.google.code.geocoder.model.GeocodeResponse;
 import com.google.code.geocoder.model.GeocoderGeometry;
 import com.google.code.geocoder.model.GeocoderResult;
 
+import edu.skachkov.geothestools.integration.constants.GeoobjectTypes;
+
 public class Point extends IntegrationEntity {
 
 	private final static String POINT_FORMAT = "POINT(%s %s)";
@@ -47,4 +49,8 @@ public class Point extends IntegrationEntity {
 		return String.format(POINT_FORMAT, longitude, latitude);
 	}
 
+	public int getType(){
+		return GeoobjectTypes.POINT_TYPE;
+	}
+	
 }
