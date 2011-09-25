@@ -1,24 +1,22 @@
 package edu.skachkov.geothestools.testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.lucene.morphology.LuceneMorphology;
-import org.apache.lucene.morphology.russian.RussianAnalyzer;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MorphAnalyzerTest {
 
-	private static RussianAnalyzer analyzer;
-	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		
-		analyzer = new RussianAnalyzer();
 		
 	}
 

@@ -1,19 +1,18 @@
 package edu.skachkov.geothestools.testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.junit.runners.model.TestClass;
 
 import edu.skachkov.geothestools.ner.NEREngine;
 
@@ -38,7 +37,8 @@ public class NEREngineTest {
 				{"Временные тренды стойких органических загрязнителей (СОЗ) экосистемы озера Байкал","байкал"},
 				{"К экологической ситуации на Байкале","байкал"},
 				{"Заказники Бурятии","бурятия"},
-				{"Исследование элементного состава воды и донных отложений озера Таватуй методом масс-спектрометрии с индуктивно связанной плазмой (ИСП-МС)", "таватуй"}
+				{"Исследование элементного состава воды и донных отложений озера Таватуй методом масс-спектрометрии с индуктивно связанной плазмой (ИСП-МС)", "таватуй"},
+				{"Озеро Байкал как особо охраняемый объект","байкал"}
 		});
 	}
 	

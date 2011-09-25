@@ -15,13 +15,12 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.code.geocoder.Geocoder;
 import com.google.code.geocoder.model.GeocodeResponse;
-import com.google.code.geocoder.model.GeocoderGeometry;
 import com.google.code.geocoder.model.GeocoderRequest;
-import com.google.code.geocoder.model.GeocoderResult;
 
 import edu.skachkov.geothestools.integration.constants.GeoobjectTypes;
 import edu.skachkov.geothestools.integration.constants.GeoreferenceTypes;
 import edu.skachkov.geothestools.integration.entities.Point;
+import edu.skachkov.geothestools.ner.NEREngine;
 
 public class NtiSimpleIntegrator {
 
@@ -30,6 +29,8 @@ public class NtiSimpleIntegrator {
 	private static Connection connection;
 
 	private static Map<String, String> knownPublicationPlaces = new HashMap<String, String>();
+	
+	private static NEREngine nerEngine = new NEREngine();
 
 	private static Geocoder geocoder = new Geocoder();
 
@@ -65,7 +66,7 @@ public class NtiSimpleIntegrator {
 
 			clearReferencestable(connection);
 
-			makePublicationPlacesReferences(connection);
+		//	makePublicationPlacesReferences(connection);
 			
 			
 			makeTitleReferences(connection);
@@ -82,7 +83,7 @@ public class NtiSimpleIntegrator {
 
 	private static void makeTitleReferences(Connection connection2)
 			throws SQLException {
-		final String selectRecordsSQL = "select rec_cod, pub_place from records";
+		final String selectRecordsSQL = "select rec_cod, title from records";
 		Statement st = connection2.createStatement();
 		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
 
@@ -119,6 +120,31 @@ public class NtiSimpleIntegrator {
 	private static List<Point> getPointsForTitle(String title) {
 		List<Point> resultList = new ArrayList<Point>();
 		
+		try{
+			//trying determine title place
+			
+			List<String> namesInText = nerEngine.FindNamesInText(title);
+			
+			System.out.println("------------------------------- Point for Title -------------------------------------");
+			System.out.println(title);
+			
+			for(String name : namesInText ){
+				if (StringUtils.isNotBlank(name)) {
+					
+					System.out.println(name);
+					
+					Point p = getPointForPlace(name);
+					
+					System.out.println(p);
+					
+					resultList.add(p);
+				}
+			}
+			
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		return resultList;
 	}
@@ -167,9 +193,9 @@ public class NtiSimpleIntegrator {
 
 	}
 
-	private static Point getPointForPlace(String pubPlace) {
+	private static Point getPointForPlace(String place) {
 
-		GeocoderRequest geocoderRequest = new GeocoderRequest(pubPlace, "ru");
+		GeocoderRequest geocoderRequest = new GeocoderRequest(place, "ru");
 		GeocodeResponse geocodeResponse = geocoder.geocode(geocoderRequest);
 
 		Point result = new Point(geocodeResponse);
@@ -184,8 +210,16 @@ public class NtiSimpleIntegrator {
 
 	private static void executeSql(Connection connection2, String sql)
 			throws SQLException {
-		Statement st = connection2.createStatement();
-		st.execute(sql);
+		
+		if (emulate) {
+			System.out.println("Emulating mode:" + sql);
+		}
+		else{
+			Statement st = connection2.createStatement();
+			st.execute(sql);	
+		}
+		
+		
 	}
 
 	private static void clearGeoreferenceTypesTable(Connection connection2)
@@ -208,12 +242,12 @@ public class NtiSimpleIntegrator {
 		st.setInt(1, GeoreferenceTypes.TITLE_REF_ID);
 		st.setString(2, GeoreferenceTypes.TITLE_REF_DESCR);
 		st.setString(3, GeoreferenceTypes.TITLE_REF_COLUMN);
-		st.executeUpdate();
+		executeStatement(st);
 
 		st.setInt(1, GeoreferenceTypes.PUBPLACE_REF_ID);
 		st.setString(2, GeoreferenceTypes.PUBPLACE_REF_DESCR);
 		st.setString(3, GeoreferenceTypes.PUBPLACE_REF_COLUMN);
-		st.executeUpdate();
+		executeStatement(st);
 	}
 
 	private static void fillGeoobjectTypesTable(Connection connection2)
@@ -223,12 +257,26 @@ public class NtiSimpleIntegrator {
 		PreparedStatement st = connection2.prepareStatement(insertSQLFormat);
 		st.setInt(1, GeoobjectTypes.POINT_TYPE);
 		st.setString(2, GeoobjectTypes.POINT_DESCR);
-		st.executeUpdate();
+		executeStatement(st);
 
 		st.setInt(1, GeoobjectTypes.RECTANGLE_TYPE);
 		st.setString(2, GeoobjectTypes.RECTANGLE_DESCR);
-		st.executeUpdate();
+		executeStatement(st);
 
 	}
+
+	private static void executeStatement(PreparedStatement st)
+			throws SQLException {
+		
+		if (emulate) {
+			
+		}
+		else{
+			st.executeUpdate();	
+		}
+		
+	}
+	
+	
 
 }
