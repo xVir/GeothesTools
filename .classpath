@@ -6,6 +6,9 @@
 	<classpathentry kind="lib" path="lib/postgresql-9.0-801.jdbc4.jar" sourcepath="C:/Users/danil/.m2/repository/postgresql/postgresql/9.0-801.jdbc4/postgresql-9.0-801.jdbc4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.6/commons-lang-2.6.jar" sourcepath="C:/Users/danil/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.0.1/commons-io-2.0.1.jar" sourcepath="C:/Users/danil/.m2/repository/commons-io/commons-io/2.0.1/commons-io-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/russianmorphology/morph-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/russianmorphology/russian-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-3.4.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geocoder-java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
