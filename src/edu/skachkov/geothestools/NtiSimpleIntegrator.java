@@ -120,13 +120,18 @@ public class NtiSimpleIntegrator {
 	private static List<Point> getPointsForTitle(String title) {
 		List<Point> resultList = new ArrayList<Point>();
 		
+		System.out.println("------------------------------- Point for Title -------------------------------------");
+		System.out.println(title);
+		
 		try{
+			
+			
+			
 			//trying determine title place
 			
 			List<String> namesInText = nerEngine.FindNamesInText(title);
 			
-			System.out.println("------------------------------- Point for Title -------------------------------------");
-			System.out.println(title);
+			
 			
 			for(String name : namesInText ){
 				if (StringUtils.isNotBlank(name)) {
@@ -145,6 +150,8 @@ public class NtiSimpleIntegrator {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("----------------------------End Point for Title -------------------------------------");
 		
 		return resultList;
 	}
