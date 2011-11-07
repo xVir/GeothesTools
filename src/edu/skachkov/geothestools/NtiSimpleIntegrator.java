@@ -68,7 +68,7 @@ public class NtiSimpleIntegrator {
 
 			// makePublicationPlacesReferences(connection);
 
-			makeTitleReferences(connection);
+			//makeTitleReferences(connection);
 			makeAbstractreferences(connection);
 
 			connection.close();
@@ -118,14 +118,14 @@ public class NtiSimpleIntegrator {
 		List<Point> resultList = new ArrayList<Point>();
 
 		System.out
-				.println("------------------------------- Point for Title -------------------------------------");
+				.println("------------------------------- Point for Abstract -------------------------------------");
 		System.out.println(abstr);
 
 		try {
 
 			// trying determine title place
 
-			List<String> namesInText = nerEngine.FindNamesInText(abstr);
+			List<String> namesInText = nerEngine.FindNamesInAbstract(abstr);
 
 			for (String name : namesInText) {
 				if (StringUtils.isNotBlank(name)) {
@@ -145,7 +145,7 @@ public class NtiSimpleIntegrator {
 		}
 
 		System.out
-				.println("----------------------------End Point for Title -------------------------------------");
+				.println("----------------------------End Point for Abstract -------------------------------------");
 
 		return resultList;
 

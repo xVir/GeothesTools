@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.morphology.LuceneMorphology;
+import org.apache.lucene.morphology.WrongCharaterException;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 
 /**
@@ -15,6 +16,8 @@ import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
  * 
  */
 public class NEREngine {
+
+	private static final String EXCESS_CHARS = ".,;:(){}\'\"";
 
 	private static final String IRKUTSK_FILE_NAME = "data/irkutskaya_obl.txt";
 
@@ -35,8 +38,6 @@ public class NEREngine {
 
 	public List<String> FindNamesInText(String inputText) {
 
-		
-		
 		// get first word or word, what begins from upper case
 
 		String text = normalizeText(inputText);
@@ -45,25 +46,30 @@ public class NEREngine {
 
 		List<String> normalizedTokens = new ArrayList<String>();
 		for (String token : tokens) {
-			List<String> normalForms = russianMorph.getNormalForms(token);
 
-			if (normalForms.size() > 0) {
-				normalizedTokens.add(normalForms.get(0));
-			} else {
-				normalizedTokens.add(token);
+			try {
+				List<String> normalForms = russianMorph.getNormalForms(token);
+
+				if (normalForms.size() > 0) {
+					normalizedTokens.add(normalForms.get(0));
+				} else {
+					normalizedTokens.add(token);
+				}
+
+			} catch (WrongCharaterException wrongCharaterException) {
+				wrongCharaterException.printStackTrace();
+				System.out.println("-------------> In token: " + token);
 			}
 		}
-		
-		
+
 		List<String> results = new ArrayList<String>();
-		
+
 		for (String token : normalizedTokens) {
 			String geoObject = geoObjectsDictionary.getObjectIfExists(token);
 			if (StringUtils.isNotBlank(geoObject)) {
 				results.add(geoObject);
 			}
 		}
-		
 
 		return results;
 	}
@@ -73,13 +79,32 @@ public class NEREngine {
 			return "";
 		}
 
-		String result = StringUtils.replaceChars(text.toLowerCase(), ".,;:(){}\'\"", null);
-		
+		String result = StringUtils.replaceChars(text.toLowerCase(),
+				EXCESS_CHARS, null);
 
 		result = StringUtils.normalizeSpace(result);
 
 		return result;
 
+	}
+
+	public List<String> FindNamesInAbstract(String abstr) {
+		// get all words, which starts with Upper case letter
+
+		StringBuilder namesBuilder = new StringBuilder();
+
+		String textToProcess = StringUtils.replaceChars(abstr, EXCESS_CHARS,
+				null);
+
+		String[] wordItems = StringUtils.split(textToProcess);
+
+		for (String word : wordItems) {
+			if (!word.equals(StringUtils.uncapitalize(word))) {
+				namesBuilder.append(word + " ");
+			}
+		}
+
+		return FindNamesInText(namesBuilder.toString());
 	}
 
 }
