@@ -29,7 +29,7 @@ public class NtiSimpleIntegrator {
 	private static Connection connection;
 
 	private static Map<String, String> knownPublicationPlaces = new HashMap<String, String>();
-	
+
 	private static NEREngine nerEngine = new NEREngine();
 
 	private static Geocoder geocoder = new Geocoder();
@@ -66,10 +66,10 @@ public class NtiSimpleIntegrator {
 
 			clearReferencestable(connection);
 
-		//	makePublicationPlacesReferences(connection);
-			
-			
+			// makePublicationPlacesReferences(connection);
+
 			makeTitleReferences(connection);
+			makeAbstractreferences(connection);
 
 			connection.close();
 
@@ -78,6 +78,76 @@ public class NtiSimpleIntegrator {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	private static void makeAbstractreferences(Connection connection2)
+			throws SQLException {
+		final String selectRecordsSQL = "select rec_cod, abstr from abstract";
+		Statement st = connection2.createStatement();
+		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
+
+		while (recordsSet.next()) {
+			String recCod = recordsSet.getString(1);
+			String abstr = recordsSet.getString(2);
+
+			List<Point> abstrPoints = getPointsForAbstract(abstr);
+
+			int objectType = GeoobjectTypes.POINT_TYPE;
+			int referenceType = GeoreferenceTypes.ABSTRACT_REF_ID;
+
+			final String insertSQLFormat = "insert into geo_references (rec_cod, type_id, object_type_id, point_data) values ('%s',%s,%s,%s)";
+
+			for (Point p : abstrPoints) {
+
+				final String insertCommand = String.format(insertSQLFormat,
+						recCod, referenceType, objectType, p.GetSQL());
+
+				if (emulate) {
+					System.out.println(insertCommand);
+				} else {
+					Statement insertStatement = connection2.createStatement();
+					insertStatement.execute(insertCommand);
+				}
+			}
+
+		}
+	}
+
+	private static List<Point> getPointsForAbstract(String abstr) {
+		List<Point> resultList = new ArrayList<Point>();
+
+		System.out
+				.println("------------------------------- Point for Title -------------------------------------");
+		System.out.println(abstr);
+
+		try {
+
+			// trying determine title place
+
+			List<String> namesInText = nerEngine.FindNamesInText(abstr);
+
+			for (String name : namesInText) {
+				if (StringUtils.isNotBlank(name)) {
+
+					System.out.println(name);
+
+					Point p = getPointForPlace(name);
+
+					System.out.println(p);
+
+					resultList.add(p);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		System.out
+				.println("----------------------------End Point for Title -------------------------------------");
+
+		return resultList;
 
 	}
 
@@ -92,16 +162,15 @@ public class NtiSimpleIntegrator {
 			String recCod = recordsSet.getString(1);
 			String title = recordsSet.getString(2);
 
-			List<Point> titlePoints = getPointsForTitle(title); 
-			
+			List<Point> titlePoints = getPointsForTitle(title);
+
 			int objectType = GeoobjectTypes.POINT_TYPE;
 			int referenceType = GeoreferenceTypes.TITLE_REF_ID;
-			
-			final String insertSQLFormat = 
-					"insert into geo_references (rec_cod, type_id, object_type_id, point_data) values ('%s',%s,%s,%s)";
 
-			for(Point p : titlePoints){
-				
+			final String insertSQLFormat = "insert into geo_references (rec_cod, type_id, object_type_id, point_data) values ('%s',%s,%s,%s)";
+
+			for (Point p : titlePoints) {
+
 				final String insertCommand = String.format(insertSQLFormat,
 						recCod, referenceType, objectType, p.GetSQL());
 
@@ -112,47 +181,44 @@ public class NtiSimpleIntegrator {
 					insertStatement.execute(insertCommand);
 				}
 			}
-			
+
 		}
 
 	}
 
 	private static List<Point> getPointsForTitle(String title) {
 		List<Point> resultList = new ArrayList<Point>();
-		
-		System.out.println("------------------------------- Point for Title -------------------------------------");
+
+		System.out
+				.println("------------------------------- Point for Title -------------------------------------");
 		System.out.println(title);
-		
-		try{
-			
-			
-			
-			//trying determine title place
-			
+
+		try {
+
+			// trying determine title place
+
 			List<String> namesInText = nerEngine.FindNamesInText(title);
-			
-			
-			
-			for(String name : namesInText ){
+
+			for (String name : namesInText) {
 				if (StringUtils.isNotBlank(name)) {
-					
+
 					System.out.println(name);
-					
+
 					Point p = getPointForPlace(name);
-					
+
 					System.out.println(p);
-					
+
 					resultList.add(p);
 				}
 			}
-			
-		}
-		catch (Exception e) {
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("----------------------------End Point for Title -------------------------------------");
-		
+
+		System.out
+				.println("----------------------------End Point for Title -------------------------------------");
+
 		return resultList;
 	}
 
@@ -217,16 +283,14 @@ public class NtiSimpleIntegrator {
 
 	private static void executeSql(Connection connection2, String sql)
 			throws SQLException {
-		
+
 		if (emulate) {
 			System.out.println("Emulating mode:" + sql);
-		}
-		else{
+		} else {
 			Statement st = connection2.createStatement();
-			st.execute(sql);	
+			st.execute(sql);
 		}
-		
-		
+
 	}
 
 	private static void clearGeoreferenceTypesTable(Connection connection2)
@@ -274,16 +338,13 @@ public class NtiSimpleIntegrator {
 
 	private static void executeStatement(PreparedStatement st)
 			throws SQLException {
-		
+
 		if (emulate) {
-			
+
+		} else {
+			st.executeUpdate();
 		}
-		else{
-			st.executeUpdate();	
-		}
-		
+
 	}
-	
-	
 
 }

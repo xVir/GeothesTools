@@ -10,4 +10,8 @@ public interface GeoreferenceTypes {
 	public static final String PUBPLACE_REF_DESCR="Publication place";
 	public static final String PUBPLACE_REF_COLUMN="pub_place";
 	
+	public static final int ABSTRACT_REF_ID = 3;
+	public static final String ABSTRACT_REF_DESCR="Abstract";
+	public static final String ABSTRACT_REF_COLUMN="abstr";
+	
 }
