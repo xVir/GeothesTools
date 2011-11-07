@@ -32,7 +32,7 @@ public class NtiSimpleIntegrator {
 
 	private static NEREngine nerEngine = new NEREngine();
 
-	private static Geocoder geocoder = new Geocoder();
+	private static Geocoder geocoder;
 
 	static {
 
@@ -45,6 +45,14 @@ public class NtiSimpleIntegrator {
 		knownPublicationPlaces.put("Ulaanbaatar", "Улан-Батор");
 		knownPublicationPlaces.put("[Oslo]", "Осло");
 
+		try{
+			//geocoder = new Geocoder("nti-integrator","ABQIAAAAxlu2FlzjQ4sWcXhK7JDReRTtlEA8V7DAqrFS4HD9T3xpv-TuExSnZ94kbZjSjYZbOPOmELVJpR4T5g");
+			geocoder = new Geocoder();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	/**
@@ -66,14 +74,21 @@ public class NtiSimpleIntegrator {
 
 			clearReferencestable(connection);
 
-			// makePublicationPlacesReferences(connection);
-
-			//makeTitleReferences(connection);
-			makeAbstractreferences(connection);
+			int pubPlProcessed = 0;
+			int abstrProcessed = 0;
+			int titleProcessed = 0;
+			
+			//pubPlProcessed = makePublicationPlacesReferences(connection);
+			titleProcessed = makeTitleReferences(connection);
+			//abstrProcessed = makeAbstractreferences(connection);
 
 			connection.close();
 
 			System.out.println("Done!");
+			
+			System.out.println("Publication places: " + pubPlProcessed);
+			System.out.println("Titles: " + titleProcessed);
+			System.out.println("Abstracts: " + abstrProcessed);
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -81,12 +96,14 @@ public class NtiSimpleIntegrator {
 
 	}
 
-	private static void makeAbstractreferences(Connection connection2)
+	private static int makeAbstractreferences(Connection connection2)
 			throws SQLException {
 		final String selectRecordsSQL = "select rec_cod, abstr from abstract";
 		Statement st = connection2.createStatement();
 		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
 
+		int recordsProcessed = 0;
+		
 		while (recordsSet.next()) {
 			String recCod = recordsSet.getString(1);
 			String abstr = recordsSet.getString(2);
@@ -104,14 +121,18 @@ public class NtiSimpleIntegrator {
 						recCod, referenceType, objectType, p.GetSQL());
 
 				if (emulate) {
-					System.out.println(insertCommand);
+					System.out.println("Emulate: " + insertCommand);
 				} else {
+					System.out.println(insertCommand);
 					Statement insertStatement = connection2.createStatement();
 					insertStatement.execute(insertCommand);
 				}
 			}
 
+			recordsProcessed++;
 		}
+		
+		return recordsProcessed;
 	}
 
 	private static List<Point> getPointsForAbstract(String abstr) {
@@ -151,12 +172,14 @@ public class NtiSimpleIntegrator {
 
 	}
 
-	private static void makeTitleReferences(Connection connection2)
+	private static int makeTitleReferences(Connection connection2)
 			throws SQLException {
 		final String selectRecordsSQL = "select rec_cod, title from records";
 		Statement st = connection2.createStatement();
 		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
 
+		int recordsProcessed = 0;
+		
 		while (recordsSet.next()) {
 
 			String recCod = recordsSet.getString(1);
@@ -175,14 +198,19 @@ public class NtiSimpleIntegrator {
 						recCod, referenceType, objectType, p.GetSQL());
 
 				if (emulate) {
-					System.out.println(insertCommand);
+					System.out.println("Emulate: " + insertCommand);
 				} else {
+					System.out.println(insertCommand);
 					Statement insertStatement = connection2.createStatement();
 					insertStatement.execute(insertCommand);
 				}
 			}
 
+			recordsProcessed++;
+			
 		}
+		
+		return recordsProcessed;
 
 	}
 
@@ -222,13 +250,15 @@ public class NtiSimpleIntegrator {
 		return resultList;
 	}
 
-	private static void makePublicationPlacesReferences(Connection connection2)
+	private static int makePublicationPlacesReferences(Connection connection2)
 			throws SQLException {
 		final String selectRecordsSQL = "select rec_cod, pub_place from records";
 
 		Statement st = connection2.createStatement();
 		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
 
+		int recordsProcessed = 0;
+		
 		while (recordsSet.next()) {
 
 			String recCod = recordsSet.getString(1);
@@ -254,15 +284,20 @@ public class NtiSimpleIntegrator {
 						recCod, referenceType, objectType, pubPoint.GetSQL());
 
 				if (emulate) {
-					System.out.println(insertCommand);
+					System.out.println("Emulate: " + insertCommand);
 				} else {
+					System.out.println(insertCommand);
 					Statement insertStatement = connection2.createStatement();
 					insertStatement.execute(insertCommand);
 				}
 
 			}
 
+			recordsProcessed++;
+			
 		}
+		
+		return recordsProcessed;
 
 	}
 
@@ -285,8 +320,9 @@ public class NtiSimpleIntegrator {
 			throws SQLException {
 
 		if (emulate) {
-			System.out.println("Emulating mode:" + sql);
+			System.out.println("Emulating mode: " + sql);
 		} else {
+			System.out.println("Execute: " + sql);
 			Statement st = connection2.createStatement();
 			st.execute(sql);
 		}
@@ -319,6 +355,12 @@ public class NtiSimpleIntegrator {
 		st.setString(2, GeoreferenceTypes.PUBPLACE_REF_DESCR);
 		st.setString(3, GeoreferenceTypes.PUBPLACE_REF_COLUMN);
 		executeStatement(st);
+		
+		st.setInt(1, GeoreferenceTypes.ABSTRACT_REF_ID);
+		st.setString(2, GeoreferenceTypes.ABSTRACT_REF_DESCR);
+		st.setString(3, GeoreferenceTypes.ABSTRACT_REF_COLUMN);
+		executeStatement(st);
+		
 	}
 
 	private static void fillGeoobjectTypesTable(Connection connection2)
