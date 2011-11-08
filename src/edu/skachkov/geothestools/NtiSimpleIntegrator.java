@@ -24,7 +24,7 @@ import edu.skachkov.geothestools.ner.NEREngine;
 
 public class NtiSimpleIntegrator {
 
-	private static boolean emulate = true;
+	private static boolean emulate = false;
 
 	private static Connection connection;
 
@@ -33,6 +33,8 @@ public class NtiSimpleIntegrator {
 	private static NEREngine nerEngine = new NEREngine();
 
 	private static Geocoder geocoder;
+
+	private static Map<String, Point> pointCoordinates = new HashMap<String, Point>();
 
 	static {
 
@@ -45,14 +47,14 @@ public class NtiSimpleIntegrator {
 		knownPublicationPlaces.put("Ulaanbaatar", "Улан-Батор");
 		knownPublicationPlaces.put("[Oslo]", "Осло");
 
-		try{
-			//geocoder = new Geocoder("nti-integrator","ABQIAAAAxlu2FlzjQ4sWcXhK7JDReRTtlEA8V7DAqrFS4HD9T3xpv-TuExSnZ94kbZjSjYZbOPOmELVJpR4T5g");
+		try {
+			// geocoder = new
+			// Geocoder("nti-integrator","ABQIAAAAxlu2FlzjQ4sWcXhK7JDReRTtlEA8V7DAqrFS4HD9T3xpv-TuExSnZ94kbZjSjYZbOPOmELVJpR4T5g");
 			geocoder = new Geocoder();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	/**
@@ -77,15 +79,15 @@ public class NtiSimpleIntegrator {
 			int pubPlProcessed = 0;
 			int abstrProcessed = 0;
 			int titleProcessed = 0;
-			
-			//pubPlProcessed = makePublicationPlacesReferences(connection);
+
+			pubPlProcessed = makePublicationPlacesReferences(connection);
 			titleProcessed = makeTitleReferences(connection);
-			//abstrProcessed = makeAbstractreferences(connection);
+			abstrProcessed = makeAbstractreferences(connection);
 
 			connection.close();
 
 			System.out.println("Done!");
-			
+
 			System.out.println("Publication places: " + pubPlProcessed);
 			System.out.println("Titles: " + titleProcessed);
 			System.out.println("Abstracts: " + abstrProcessed);
@@ -103,7 +105,7 @@ public class NtiSimpleIntegrator {
 		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
 
 		int recordsProcessed = 0;
-		
+
 		while (recordsSet.next()) {
 			String recCod = recordsSet.getString(1);
 			String abstr = recordsSet.getString(2);
@@ -127,11 +129,12 @@ public class NtiSimpleIntegrator {
 					Statement insertStatement = connection2.createStatement();
 					insertStatement.execute(insertCommand);
 				}
+
+				recordsProcessed++;
 			}
 
-			recordsProcessed++;
 		}
-		
+
 		return recordsProcessed;
 	}
 
@@ -179,7 +182,7 @@ public class NtiSimpleIntegrator {
 		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
 
 		int recordsProcessed = 0;
-		
+
 		while (recordsSet.next()) {
 
 			String recCod = recordsSet.getString(1);
@@ -204,12 +207,12 @@ public class NtiSimpleIntegrator {
 					Statement insertStatement = connection2.createStatement();
 					insertStatement.execute(insertCommand);
 				}
+
+				recordsProcessed++;
 			}
 
-			recordsProcessed++;
-			
 		}
-		
+
 		return recordsProcessed;
 
 	}
@@ -258,7 +261,7 @@ public class NtiSimpleIntegrator {
 		ResultSet recordsSet = st.executeQuery(selectRecordsSQL);
 
 		int recordsProcessed = 0;
-		
+
 		while (recordsSet.next()) {
 
 			String recCod = recordsSet.getString(1);
@@ -291,23 +294,33 @@ public class NtiSimpleIntegrator {
 					insertStatement.execute(insertCommand);
 				}
 
+				recordsProcessed++;
+
 			}
 
-			recordsProcessed++;
-			
 		}
-		
+
 		return recordsProcessed;
 
 	}
 
 	private static Point getPointForPlace(String place) {
 
-		GeocoderRequest geocoderRequest = new GeocoderRequest(place, "ru");
-		GeocodeResponse geocodeResponse = geocoder.geocode(geocoderRequest);
+		if (emulate) {
+			return new Point(0, 0);
+		}
 
-		Point result = new Point(geocodeResponse);
-		return result;
+		if (!pointCoordinates.containsKey(place)) {
+			GeocoderRequest geocoderRequest = new GeocoderRequest(place, "ru");
+			GeocodeResponse geocodeResponse = geocoder.geocode(geocoderRequest);
+
+			Point result = new Point(geocodeResponse);
+
+			pointCoordinates.put(place, result);
+		}
+
+		return pointCoordinates.get(place);
+
 	}
 
 	private static void clearReferencestable(Connection connection2)
@@ -355,12 +368,12 @@ public class NtiSimpleIntegrator {
 		st.setString(2, GeoreferenceTypes.PUBPLACE_REF_DESCR);
 		st.setString(3, GeoreferenceTypes.PUBPLACE_REF_COLUMN);
 		executeStatement(st);
-		
+
 		st.setInt(1, GeoreferenceTypes.ABSTRACT_REF_ID);
 		st.setString(2, GeoreferenceTypes.ABSTRACT_REF_DESCR);
 		st.setString(3, GeoreferenceTypes.ABSTRACT_REF_COLUMN);
 		executeStatement(st);
-		
+
 	}
 
 	private static void fillGeoobjectTypesTable(Connection connection2)
